@@ -619,48 +619,43 @@
             doc.close();
         }
 
-        async function executeWithBackend() {
-            try {
-                const response = await fetch('http://localhost:3000/run', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        language: currentLanguage,
-                        sourceCode: DOM.codeEditor.value
-                    })
-                });
+       async function executeWithBackend() {
+    try {
+        const response = await fetch('/run', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                language: currentLanguage,
+                sourceCode: DOM.codeEditor.value
+            })
+        });
 
-                const data = await response.json();
+        const data = await response.json();
 
-                if (!response.ok) {
-                    throw new Error(data.error || `Server error: ${response.status}`);
-                }
-
-                DOM.output.textContent =
-                    data.output && data.output.trim() !== ''
-                        ? data.output
-                        : 'Program executed successfully. No output.';
-
-                if (data.success) {
-                    DOM.output.classList.remove('error');
-                } else {
-                    DOM.output.classList.add('error');
-                }
-
-            } catch (error) {
-                DOM.output.textContent =
-                    `Error: ${error.message}\n\n` +
-                    'Make sure the backend is running:\n' +
-                    'npm install\n' +
-                    'npm start';
-
-                DOM.output.classList.add('error');
-            } finally {
-                DOM.runBtn.disabled = false;
-            }
+        if (!response.ok) {
+            throw new Error(data.error || `Server error: ${response.status}`);
         }
+
+        DOM.output.textContent =
+            data.output && data.output.trim() !== ''
+                ? data.output
+                : 'Program executed successfully. No output.';
+
+        if (data.success) {
+            DOM.output.classList.remove('error');
+        } else {
+            DOM.output.classList.add('error');
+        }
+
+    } catch (error) {
+        DOM.output.textContent = `Error: ${error.message}`;
+        DOM.output.classList.add('error');
+    } finally {
+        DOM.runBtn.disabled = false;
+    }
+}
 
         function saveCode() {
             const name = DOM.saveName.value.trim();
