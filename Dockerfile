@@ -1,14 +1,22 @@
 FROM node:20-bookworm
 
-WORKDIR /app
+RUN apt-get update && apt-get install -y \
+    openjdk-17-jdk \
+    python3 \
+    gcc \
+    g++ \
+    php-cli \
+    golang-go \
+    rustc \
+    cargo \
+    sqlite3 \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update && \
-    apt-get install -y openjdk-17-jdk && \
-    rm -rf /var/lib/apt/lists/*
+WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install
+RUN npm install --omit=dev
 
 COPY . .
 
