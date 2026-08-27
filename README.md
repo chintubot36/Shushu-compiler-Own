@@ -247,7 +247,7 @@ Browser Output Panel
 
 ## 👨‍💻 Author
 
-**Saikiran Reddy**
+**Saikiran Kumbam**
 
 GitHub:  
 https://github.com/chintubot36
