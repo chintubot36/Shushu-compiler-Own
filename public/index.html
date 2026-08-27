@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shushu Compiler - Code, Compile, Create</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #3B82F6;
+            --primary-light: #DBEAFE;
+            --success: #10B981;
+            --danger: #EF4444;
+            --text-primary-light: #1F2937;
+            --text-secondary-light: #6B7280;
+            --bg-light: #F5F5F5;
+            --surface-light: #FFFFFF;
+            --surface-alt-light: #F9F9F9;
+            --border-light: #E0E0E0;
+            --text-primary-dark: #E0E0E0;
+            --text-secondary-dark: #999999;
+            --bg-dark: #1A1A1A;
+            --surface-dark: #2D2D2D;
+            --surface-alt-dark: #252525;
+            --border-dark: #404040;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--bg-light);
+            color: var(--text-primary-light);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body.dark-mode {
+            background-color: var(--bg-dark);
+            color: var(--text-primary-dark);
+        }
+
+        .header {
+            padding: 16px;
+            border-bottom: 0.5px solid var(--border-light);
+            background-color: var(--surface-alt-light);
+        }
+
+        body.dark-mode .header {
+            border-bottom-color: var(--border-dark);
+            background-color: var(--surface-alt-dark);
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #3B82F6, #6366F1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .header-info h1 {
+            font-size: 22px;
+            font-weight: 600;
+            margin: 0;
+            color: #3B82F6;
+        }
+
+        .header-info p {
+            font-size: 11px;
+            color: var(--text-secondary-light);
+            margin: 2px 0 0;
+        }
+
+        body.dark-mode .header-info h1 {
+            color: #60A5FA;
+        }
+
+        body.dark-mode .header-info p {
+            color: var(--text-secondary-dark);
+        }
+
+        .theme-toggle {
+            padding: 8px 12px;
+            background-color: var(--surface-light);
+            border: 0.5px solid var(--border-light);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        body.dark-mode .theme-toggle {
+            background-color: var(--surface-dark);
+            border-color: var(--border-dark);
+        }
+
+        .language-tabs {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            max-height: 80px;
+            overflow-y: auto;
+        }
+
+        .lang-btn {
+            padding: 6px 12px;
+            background-color: var(--surface-light);
+            border: 0.5px solid var(--border-light);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 500;
+            white-space: nowrap;
+            color: var(--text-primary-light);
+        }
+
+        body.dark-mode .lang-btn {
+            background-color: var(--surface-dark);
+            border-color: var(--border-dark);
+            color: var(--text-primary-dark);
+        }
+
+        .lang-btn.active {
+            border: 2px solid var(--primary);
+            background-color: var(--primary-light);
+            color: var(--primary);
+        }
+
+        body.dark-mode .lang-btn.active {
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+
+        .main-container {
+            display: flex;
+            gap: 12px;
+            flex: 1;
+            overflow: hidden;
+            padding: 12px;
+        }
+
+        .editor-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--surface-light);
+            border-radius: 12px;
+            border: 0.5px solid var(--border-light);
+            overflow: hidden;
+        }
+
+        body.dark-mode .editor-section {
+            background-color: var(--surface-dark);
+            border-color: var(--border-dark);
+        }
+
+        .section-header {
+            padding: 12px 16px;
+            border-bottom: 0.5px solid var(--border-light);
+            background-color: var(--surface-alt-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: var(--text-secondary-light);
+            font-weight: 500;
+        }
+
+        body.dark-mode .section-header {
+            border-bottom-color: var(--border-dark);
+            background-color: var(--surface-alt-dark);
+            color: var(--text-secondary-dark);
+        }
+
+        .editor-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            padding: 4px 8px;
+            background: none;
+            border: 0.5px solid var(--border-light);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            color: var(--text-primary-light);
+        }
+
+        body.dark-mode .icon-btn {
+            border-color: var(--border-dark);
+            color: var(--text-primary-dark);
+        }
+
+        .icon-btn.danger {
+            color: var(--danger);
+        }
+
+        textarea {
+            flex: 1;
+            padding: 16px;
+            border: none;
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            background-color: var(--surface-light);
+            color: var(--text-primary-light);
+            resize: none;
+            outline: none;
+        }
+
+        body.dark-mode textarea {
+            background-color: var(--bg-dark);
+            color: var(--text-primary-dark);
+        }
+
+        .right-panel {
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .output-section {
+            flex: 1;
+            background-color: var(--surface-light);
+            border-radius: 12px;
+            border: 0.5px solid var(--border-light);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        body.dark-mode .output-section {
+            background-color: var(--surface-dark);
+            border-color: var(--border-dark);
+        }
+
+        .output-content {
+            flex: 1;
+            padding: 12px;
+            font-family: 'Fira Code', monospace;
+            font-size: 12px;
+            overflow: auto;
+            color: var(--text-primary-light);
+            white-space: pre-wrap;
+            word-break: break-word;
+            background-color: var(--surface-alt-light);
+        }
+
+        body.dark-mode .output-content {
+            background-color: var(--bg-dark);
+            color: var(--text-primary-dark);
+        }
+
+        .output-content.error {
+            color: var(--danger);
+        }
+
+        iframe {
+            border: none;
+            background-color: white;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        button {
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 13px;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            padding: 10px;
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background-color: #2563EB;
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            padding: 10px;
+            background-color: var(--surface-light);
+            color: var(--text-primary-light);
+            border: 0.5px solid var(--border-light);
+        }
+
+        body.dark-mode .btn-secondary {
+            background-color: var(--surface-dark);
+            color: var(--text-primary-dark);
+            border-color: var(--border-dark);
+        }
+
+        .btn-success {
+            padding: 8px;
+            background-color: var(--success);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-success:hover {
+            background-color: #059669;
+        }
+
+        .card {
+            background-color: var(--surface-light);
+            border-radius: 12px;
+            border: 0.5px solid var(--border-light);
+            padding: 12px;
+        }
+
+        body.dark-mode .card {
+            background-color: var(--surface-dark);
+            border-color: var(--border-dark);
+        }
+
+        .card-title {
+            margin: 0 0 8px;
+            font-size: 12px;
+            color: var(--text-secondary-light);
+            font-weight: 500;
+        }
+
+        body.dark-mode .card-title {
+            color: var(--text-secondary-dark);
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border: 0.5px solid var(--border-light);
+            border-radius: 8px;
+            font-size: 12px;
+            margin-bottom: 8px;
+            background-color: var(--surface-alt-light);
+            color: var(--text-primary-light);
+            font-family: 'Inter', sans-serif;
+        }
+
+        body.dark-mode input[type="text"] {
+            background-color: var(--surface-alt-dark);
+            border-color: var(--border-dark);
+            color: var(--text-primary-dark);
+        }
+
+        .saved-list {
+            max-height: 220px;
+            overflow-y: auto;
+        }
+
+        .saved-item {
+            padding: 8px;
+            background-color: var(--surface-alt-light);
+            border: 0.5px solid var(--border-light);
+            border-radius: 6px;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        body.dark-mode .saved-item {
+            background-color: var(--surface-alt-dark);
+            border-color: var(--border-dark);
+        }
+
+        .saved-item-name {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 500;
+            width: 100%;
+            text-align: left;
+            font-family: inherit;
+        }
+
+        .saved-item-lang {
+            font-size: 10px;
+            color: var(--text-secondary-light);
+            margin-top: 2px;
+        }
+
+        body.dark-mode .saved-item-lang {
+            color: var(--text-secondary-dark);
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--danger);
+            padding: 4px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-light);
+            border-radius: 4px;
+        }
+
+        body.dark-mode ::-webkit-scrollbar-thumb {
+            background: var(--border-dark);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-top">
+            <div class="header-title">
+                <div class="logo">S</div>
+                <div class="header-info">
+                    <h1>Shushu Compiler</h1>
+                    <p>Code, Compile, Create</p>
+                </div>
+            </div>
+            <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">🌙</button>
+        </div>
+        <div class="language-tabs" id="languageTabs"></div>
+    </div>
+
+    <div class="main-container">
+        <div class="editor-section">
+            <div class="section-header">
+                <span><i class="fas fa-code"></i> Code Editor</span>
+                <div class="editor-buttons">
+                    <button class="icon-btn" id="templateBtn" title="Insert template"><i class="fas fa-file-code"></i></button>
+                    <button class="icon-btn danger" id="clearBtn" title="Clear code"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+            <textarea id="codeEditor" placeholder="Write your code here..."></textarea>
+        </div>
+
+        <div class="right-panel">
+            <div class="output-section">
+                <div class="section-header">
+                    <span><i class="fas fa-terminal"></i> Output</span>
+                </div>
+                <div class="output-content" id="output">Output will appear here</div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-primary" id="runBtn"><i class="fas fa-play"></i> Run Code</button>
+                <button class="btn-secondary" id="downloadBtn"><i class="fas fa-download"></i> Download</button>
+            </div>
+
+            <div class="card">
+                <p class="card-title"><i class="fas fa-bookmark"></i> Save Code</p>
+                <input type="text" id="saveName" placeholder="Name your snippet">
+                <button class="btn-success" id="saveBtn"><i class="fas fa-check"></i> Save</button>
+            </div>
+
+            <div class="card" id="savedCodesCard" style="display: none;">
+                <p class="card-title"><i class="fas fa-history"></i> Saved (<span id="saveCount">0</span>)</p>
+                <div class="saved-list" id="savedList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const languages = {
+            html: { name: 'HTML/CSS/JS', id: 63 },
+            python: { name: 'Python', id: 71 },
+            java: { name: 'Java', id: 62 },
+            cpp: { name: 'C++', id: 54 },
+            c: { name: 'C', id: 50 },
+            csharp: { name: 'C#', id: 51 },
+            js: { name: 'JavaScript', id: 63 },
+            php: { name: 'PHP', id: 68 },
+            go: { name: 'Go', id: 60 },
+            rust: { name: 'Rust', id: 73 }
+        };
+
+        const templates = {
+            html: '<!DOCTYPE html>\n<html>\n<head>\n  <style>\n    body { font-family: Arial; margin: 20px; }\n  </style>\n</head>\n<body>\n  <h1>Hello World!</h1>\n  <p>Welcome to Shushu Compiler</p>\n</body>\n</html>',
+            python: 'print("Hello, World!")\nx = 10\ny = 20\nprint(x + y)',
+            java: 'public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, World!");\n    }\n}',
+            cpp: '#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Hello, World!" << endl;\n    return 0;\n}',
+            c: '#include <stdio.h>\n\nint main() {\n    printf("Hello, World!\\n");\n    return 0;\n}',
+            csharp: 'using System;\nclass Program {\n    static void Main() {\n        Console.WriteLine("Hello, World!");\n    }\n}',
+            js: 'console.log("Hello, World!");\nlet x = 10;\nconsole.log(x);',
+            php: '<?php\necho "Hello, World!";\n?>',
+            go: 'package main\nimport "fmt"\nfunc main() {\n    fmt.Println("Hello, World!")\n}',
+            rust: 'fn main() {\n    println!("Hello, World!");\n}'
+        };
+
+        // ==================== APP STATE ====================
+        let currentLanguage = 'html';
+        let savedCodes = [];
+        let isDarkMode = false;
+
+        const DOM = {
+            codeEditor: document.getElementById('codeEditor'),
+            output: document.getElementById('output'),
+            runBtn: document.getElementById('runBtn'),
+            downloadBtn: document.getElementById('downloadBtn'),
+            saveBtn: document.getElementById('saveBtn'),
+            saveName: document.getElementById('saveName'),
+            languageTabs: document.getElementById('languageTabs'),
+            themeToggle: document.getElementById('themeToggle'),
+            templateBtn: document.getElementById('templateBtn'),
+            clearBtn: document.getElementById('clearBtn'),
+            savedCodesCard: document.getElementById('savedCodesCard'),
+            saveCount: document.getElementById('saveCount'),
+            savedList: document.getElementById('savedList')
+        };
+
+        function init() {
+            loadDarkMode();
+            loadSavedCodes();
+            createLanguageTabs();
+            setDefaultCode();
+            attachEventListeners();
+        }
+
+        function createLanguageTabs() {
+            Object.entries(languages).forEach(([key, lang]) => {
+                const btn = document.createElement('button');
+                btn.className = 'lang-btn ' + (key === 'html' ? 'active' : '');
+                btn.textContent = lang.name;
+                btn.onclick = function() { selectLanguage(key, this); };
+                DOM.languageTabs.appendChild(btn);
+            });
+        }
+
+        function selectLanguage(lang, btn) {
+            currentLanguage = lang;
+            DOM.output.textContent = 'Output will appear here';
+            DOM.output.classList.remove('error');
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        function setDefaultCode() {
+            DOM.codeEditor.value = templates.html;
+        }
+
+        async function runCode() {
+            const code = DOM.codeEditor.value.trim();
+
+            if (!code) {
+                DOM.output.textContent = 'Please write some code first.';
+                DOM.output.classList.add('error');
+                return;
+            }
+
+            DOM.runBtn.disabled = true;
+            DOM.output.classList.remove('error');
+            DOM.output.textContent = 'Executing...';
+
+            if (currentLanguage === 'html') {
+                renderHTML();
+                DOM.runBtn.disabled = false;
+                return;
+            }
+
+            await executeWithBackend();
+        }
+
+        function renderHTML() {
+            const iframe = document.createElement('iframe');
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.border = 'none';
+
+            DOM.output.innerHTML = '';
+            DOM.output.appendChild(iframe);
+
+            const doc = iframe.contentDocument || iframe.contentWindow.document;
+            doc.open();
+            doc.write(DOM.codeEditor.value);
+            doc.close();
+        }
+
+        async function executeWithBackend() {
+            try {
+                const response = await fetch('http://localhost:3000/run', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        language: currentLanguage,
+                        sourceCode: DOM.codeEditor.value
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || `Server error: ${response.status}`);
+                }
+
+                DOM.output.textContent =
+                    data.output && data.output.trim() !== ''
+                        ? data.output
+                        : 'Program executed successfully. No output.';
+
+                if (data.success) {
+                    DOM.output.classList.remove('error');
+                } else {
+                    DOM.output.classList.add('error');
+                }
+
+            } catch (error) {
+                DOM.output.textContent =
+                    `Error: ${error.message}\n\n` +
+                    'Make sure the backend is running:\n' +
+                    'npm install\n' +
+                    'npm start';
+
+                DOM.output.classList.add('error');
+            } finally {
+                DOM.runBtn.disabled = false;
+            }
+        }
+
+        function saveCode() {
+            const name = DOM.saveName.value.trim();
+            if (!name) {
+                alert('Please enter a name');
+                return;
+            }
+
+            const code = {
+                id: Date.now(),
+                name: name,
+                language: currentLanguage,
+                code: DOM.codeEditor.value,
+                date: new Date().toLocaleString()
+            };
+
+            savedCodes.push(code);
+            localStorage.setItem('shushuCompiledCodes', JSON.stringify(savedCodes));
+            DOM.saveName.value = '';
+            updateSavedCodesList();
+            alert('Saved!');
+        }
+
+        function loadCode(id) {
+            const code = savedCodes.find(c => c.id === id);
+            if (code) {
+                currentLanguage = code.language;
+                DOM.codeEditor.value = code.code;
+                DOM.output.textContent = 'Output will appear here';
+                updateLanguageButtons();
+            }
+        }
+
+        function deleteCode(id) {
+            savedCodes = savedCodes.filter(c => c.id !== id);
+            localStorage.setItem('shushuCompiledCodes', JSON.stringify(savedCodes));
+            updateSavedCodesList();
+        }
+
+        function updateSavedCodesList() {
+            if (savedCodes.length === 0) {
+                DOM.savedCodesCard.style.display = 'none';
+                return;
+            }
+
+            DOM.savedCodesCard.style.display = 'block';
+            DOM.saveCount.textContent = savedCodes.length;
+            DOM.savedList.innerHTML = '';
+
+            savedCodes.forEach(code => {
+                const item = document.createElement('div');
+                item.className = 'saved-item';
+                item.innerHTML = '<div class="saved-item-info"><button class="saved-item-name" onclick="loadCode(' + code.id + ')">' + code.name + '</button><div class="saved-item-lang">' + languages[code.language].name + '</div></div><button class="delete-btn" onclick="deleteCode(' + code.id + ')"><i class="fas fa-trash"></i></button>';
+                DOM.savedList.appendChild(item);
+            });
+        }
+
+        function updateLanguageButtons() {
+            const langIndex = Object.keys(languages).indexOf(currentLanguage);
+            document.querySelectorAll('.lang-btn').forEach((btn, idx) => {
+                btn.classList.toggle('active', idx === langIndex);
+            });
+        }
+
+        function downloadCode() {
+            const ext = { html: 'html', java: 'java', csharp: 'cs', python: 'py', cpp: 'cpp', c: 'c', js: 'js', php: 'php', go: 'go', rust: 'rs' }[currentLanguage];
+            const link = document.createElement('a');
+            link.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(DOM.codeEditor.value);
+            link.download = 'shushu-code.' + ext;
+            link.click();
+        }
+
+        function clearCode() {
+            if (confirm('Clear all code?')) {
+                DOM.codeEditor.value = '';
+                DOM.output.textContent = 'Output will appear here';
+            }
+        }
+
+        function insertTemplate() {
+            DOM.codeEditor.value = templates[currentLanguage] || '';
+            DOM.output.textContent = 'Output will appear here';
+        }
+
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('dark-mode');
+            DOM.themeToggle.textContent = isDarkMode ? '☀️' : '🌙';
+            localStorage.setItem('shushuDarkMode', isDarkMode);
+        }
+
+        function loadDarkMode() {
+            isDarkMode = localStorage.getItem('shushuDarkMode') === 'true';
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+                DOM.themeToggle.textContent = '☀️';
+            }
+        }
+
+        function loadSavedCodes() {
+            const saved = localStorage.getItem('shushuCompiledCodes');
+            if (saved) {
+                savedCodes = JSON.parse(saved);
+                updateSavedCodesList();
+            }
+        }
+
+        function attachEventListeners() {
+            DOM.runBtn.addEventListener('click', runCode);
+            DOM.downloadBtn.addEventListener('click', downloadCode);
+            DOM.saveBtn.addEventListener('click', saveCode);
+            DOM.themeToggle.addEventListener('click', toggleDarkMode);
+            DOM.templateBtn.addEventListener('click', insertTemplate);
+            DOM.clearBtn.addEventListener('click', clearCode);
+            DOM.saveName.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') saveCode();
+            });
+        }
+
+        init();
+    </script>
+</body>
+</html>
