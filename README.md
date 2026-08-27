@@ -1,45 +1,48 @@
-# Shushu Compiler - Local Backend
+# Shushu Compiler
 
-This version runs Java through your own local backend. No RapidAPI key is required.
+A simple online code compiler built with HTML, CSS, JavaScript, Node.js, and Java.
 
-## Requirements
+## Live Demo
 
-- Node.js 18+
-- JDK installed
-- `java -version` works in Command Prompt
-- `javac -version` works in Command Prompt
+🌐 [Open Shushu Compiler](https://shushu-compiler-own-production.up.railway.app)
 
-## Run
+## Features
 
-Open Command Prompt inside this project folder:
+- Multiple programming language interface
+- Java code execution
+- HTML, CSS and JavaScript support
+- Dark mode
+- Save code snippets
+- Download code
+- Responsive design
+- Online deployment using Railway
 
-```bash
-npm install
-npm start
-```
+## Technologies Used
 
-Then open:
+### Frontend
+- HTML
+- CSS
+- JavaScript
+
+### Backend
+- Node.js
+- Express.js
+- Java
+
+### Deployment
+- Railway
+- GitHub
+
+## Project Structure
 
 ```text
-http://localhost:3000
-```
-
-## Test Java
-
-```java
-public class Main {
-    public static void main(String[] args) {
-        System.out.println("Hello World");
-    }
-}
-```
-
-Expected output:
-
-```text
-Hello World
-```
-
-## Important
-
-This backend executes user-supplied Java code on your computer. Use it only for local development. Do not expose this server publicly. A production compiler should execute code inside isolated containers or another sandbox.
+Shushu_Compiler_Local_Backend/
+│
+├── public/
+│   └── index.html
+│
+├── server.js
+├── package.json
+├── package-lock.json
+├── Dockerfile
+└── README.md
